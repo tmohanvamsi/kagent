@@ -80,13 +80,18 @@ func InstallCmd(ctx context.Context, cfg *InstallCfg) *PortForward {
 	modelProvider := GetModelProvider()
 
 	// If model provider is openai, check if the API key is set
+	// Get the API key for the selected provider
 	apiKeyName := GetProviderAPIKey(modelProvider)
 	apiKeyValue := os.Getenv(apiKeyName)
 
+	// Only block if the provider requires an API key AND it's not set.
+	// Providers like Ollama don't require an API key (apiKeyName == "").
+	// For other providers, warn the user but continue so they can configure it post-install.
 	if apiKeyName != "" && apiKeyValue == "" {
-		fmt.Fprintf(os.Stderr, "%s is not set\n", apiKeyName)
-		fmt.Fprintf(os.Stderr, "Please set the %s environment variable\n", apiKeyName)
-		return nil
+		fmt.Fprintf(os.Stderr, "Warning: %s is not set for provider %s\n", apiKeyName, modelProvider)
+		fmt.Fprintf(os.Stderr, "To set it, run: export %s=your-api-key-here\n", apiKeyName)
+		fmt.Fprintf(os.Stderr, "Or use a different provider: export KAGENT_DEFAULT_MODEL_PROVIDER=anthropic|ollama|gemini\n")
+		fmt.Fprintf(os.Stderr, "Continuing installation without API key - you can configure it later\n")
 	}
 
 	helmConfig := setupHelmConfig(modelProvider, apiKeyValue)
@@ -124,10 +129,14 @@ func InteractiveInstallCmd(ctx context.Context, c *ishell.Context) *PortForward 
 	apiKeyName := GetProviderAPIKey(modelProvider)
 	apiKeyValue := os.Getenv(apiKeyName)
 
+	// Only block if the provider requires an API key AND it's not set.
+	// Providers like Ollama don't require an API key (apiKeyName == "").
+	// For other providers, warn the user but continue so they can configure it post-install.
 	if apiKeyName != "" && apiKeyValue == "" {
-		fmt.Fprintf(os.Stderr, "%s is not set\n", apiKeyName)
-		fmt.Fprintf(os.Stderr, "Please set the %s environment variable\n", apiKeyName)
-		return nil
+		fmt.Fprintf(os.Stderr, "Warning: %s is not set for provider %s\n", apiKeyName, modelProvider)
+		fmt.Fprintf(os.Stderr, "To set it, run: export %s=your-api-key-here\n", apiKeyName)
+		fmt.Fprintf(os.Stderr, "Or use a different provider: export KAGENT_DEFAULT_MODEL_PROVIDER=anthropic|ollama|gemini\n")
+		fmt.Fprintf(os.Stderr, "Continuing installation without API key - you can configure it later\n")
 	}
 
 	helmConfig := setupHelmConfig(modelProvider, apiKeyValue)
