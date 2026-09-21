@@ -12,7 +12,7 @@ WORKDIR /build/go-containerregistry/cmd/krane
 
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /build/krane .
 
-FROM alpine:3.23
+FROM alpine:3.24
 
 RUN apk upgrade --no-cache && apk add --no-cache git
 COPY --from=krane-builder /build/krane /usr/local/bin/krane
