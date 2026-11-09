@@ -1,5 +1,5 @@
 ### Stage 0: build krane
-FROM golang:1.26-alpine AS krane-builder
+FROM golang:1.27-alpine AS krane-builder
 
 ENV KRANE_VERSION=v0.21.2
 WORKDIR /build
